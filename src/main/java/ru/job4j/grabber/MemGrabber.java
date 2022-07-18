@@ -1,0 +1,63 @@
+package ru.job4j.grabber;
+
+import org.quartz.*;
+import org.quartz.impl.StdSchedulerFactory;
+import ru.job4j.grabber.utils.HabrCareerDateTimeParser;
+
+import static org.quartz.JobBuilder.newJob;
+import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
+import static org.quartz.TriggerBuilder.newTrigger;
+
+public class MemGrabber implements Grab {
+
+    private static final String SOURCE_LINK = "https://career.habr.com/vacancies/java_developer?page=";
+
+    public Scheduler scheduler() throws SchedulerException {
+        Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
+        scheduler.start();
+        return scheduler;
+    }
+
+    @Override
+    public void init(Parse parse, Store store, Scheduler scheduler) throws SchedulerException {
+        JobDataMap data = new JobDataMap();
+        data.put("store", store);
+        data.put("parse", parse);
+        JobDetail job = newJob(GrabJob.class)
+                .usingJobData(data)
+                .build();
+        SimpleScheduleBuilder times = simpleSchedule()
+                .withIntervalInSeconds(5)
+                .repeatForever();
+        Trigger trigger = newTrigger()
+                .startNow()
+                .withSchedule(times)
+                .build();
+        scheduler.scheduleJob(job, trigger);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
+        scheduler.shutdown();
+    }
+
+    public static class GrabJob implements Job {
+
+        @Override
+        public void execute(JobExecutionContext context) throws JobExecutionException {
+            JobDataMap map = context.getJobDetail().getJobDataMap();
+            Store store = (Store) map.get("store");
+            Parse parse = (Parse) map.get("parse");
+            var parseList = parse.list(SOURCE_LINK);
+            parseList.forEach(store::save);
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        MemGrabber memGrabber = new MemGrabber();
+        Store memStore = new MemStore();
+        memGrabber.init(new HabrCareerParse(new HabrCareerDateTimeParser()),
+                memStore, memGrabber.scheduler());
+    }
+}

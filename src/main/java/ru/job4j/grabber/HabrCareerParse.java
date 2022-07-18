@@ -55,24 +55,23 @@ public class HabrCareerParse implements Parse {
     @Override
     public List<Post> list(String link) {
         List<Post> list = new ArrayList<>();
-        Connection connection = Jsoup.connect(link);
-        try {
-            Document document = connection.get();
-            Elements rows = document.select(".vacancy-card__inner");
-            rows.forEach(row -> list.add(createPost(row)));
-        } catch (IOException ex) {
-            LOG.error("Exception ", ex);
-            throw new IllegalArgumentException(ex);
+        for (int page = 1; page <= COUNT_PAGE; page++) {
+            Connection connection = Jsoup.connect(String.format("%s%d", link, page));
+            try {
+                Document document = connection.get();
+                Elements rows = document.select(".vacancy-card__inner");
+                rows.forEach(row -> list.add(createPost(row)));
+            } catch (IOException ex) {
+                LOG.error("Exception ", ex);
+                throw new IllegalArgumentException(ex);
+            }
         }
         return list;
     }
 
     public static void main(String[] args) {
         HabrCareerParse habrCareerParse = new HabrCareerParse(new HabrCareerDateTimeParser());
-        List<Post> list = new ArrayList<>();
-        for (int page = 1; page <= COUNT_PAGE; page++) {
-            list.addAll(habrCareerParse.list(String.format("%s%d", PAGE_LINK, page)));
-        }
+        List<Post> list = habrCareerParse.list(PAGE_LINK);
         for (Post post : list) {
             System.out.println(post);
         }

@@ -19,6 +19,7 @@ public class HabrCareerParse implements Parse {
 
     private static final Logger LOG = LogManager.getLogger(HabrCareerParse.class.getName());
     private static final String SOURCE_LINK = "https://career.habr.com";
+    private static final String PAGE_LINK = String.format("%s/vacancies/java_developer?page=", SOURCE_LINK);
     private static final int COUNT_PAGE = 5;
     private final DateTimeParser dateTimeParser;
 
@@ -27,7 +28,7 @@ public class HabrCareerParse implements Parse {
     }
 
     private String retrieveDescription(String link) {
-        String description = "";
+        String description;
         try {
             Connection connection = Jsoup.connect(link);
             Document document = connection.get();
@@ -35,41 +36,44 @@ public class HabrCareerParse implements Parse {
             description = rows.text();
         } catch (IOException ex) {
             LOG.error("Exception ", ex);
+            throw new IllegalArgumentException(ex);
         }
         return description;
+    }
+
+    private Post createPost(Element element) {
+        var titleElement = element.select(".vacancy-card__title").first();
+        var linkElement = titleElement.child(0);
+        var title = titleElement.text();
+        var link = String.format("%s%s", SOURCE_LINK, linkElement.attr("href"));
+        var description = retrieveDescription(link);
+        var created = dateTimeParser.parse(element.select(".basic-date")
+                .first().attr("datetime"));
+        return new Post(title, link, description, created);
     }
 
     @Override
     public List<Post> list(String link) {
         List<Post> list = new ArrayList<>();
-        int id = 0;
-        for (int page = 1; page <= COUNT_PAGE; page++) {
-            Connection connection = Jsoup
-                    .connect(String.format("%s/vacancies/java_developer?page=%d", link, page));
-            try {
-                Document document = connection.get();
-                Elements rows = document.select(".vacancy-card__inner");
-                for (Element row : rows) {
-                    Element titleElement = row.select(".vacancy-card__title").first();
-                    Element linkElement = titleElement.child(0);
-                    String vacancyLink = String.format("%s%s", link, linkElement.attr("href"));
-                    list.add(new Post(id++, titleElement.text(),
-                            vacancyLink, retrieveDescription(vacancyLink),
-                            dateTimeParser
-                                    .parse(row.select(".basic-date")
-                                            .first().attr("datetime"))));
-                }
-            } catch (IOException ex) {
-                LOG.error("Exception ", ex);
-            }
+        Connection connection = Jsoup.connect(link);
+        try {
+            Document document = connection.get();
+            Elements rows = document.select(".vacancy-card__inner");
+            rows.forEach(row -> list.add(createPost(row)));
+        } catch (IOException ex) {
+            LOG.error("Exception ", ex);
+            throw new IllegalArgumentException(ex);
         }
         return list;
     }
 
     public static void main(String[] args) {
         HabrCareerParse habrCareerParse = new HabrCareerParse(new HabrCareerDateTimeParser());
-        List<Post> postList = habrCareerParse.list(SOURCE_LINK);
-        for (Post post : postList) {
+        List<Post> list = new ArrayList<>();
+        for (int page = 1; page <= COUNT_PAGE; page++) {
+            list.addAll(habrCareerParse.list(String.format("%s%d", PAGE_LINK, page)));
+        }
+        for (Post post : list) {
             System.out.println(post);
         }
     }

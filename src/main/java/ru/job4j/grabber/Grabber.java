@@ -45,8 +45,8 @@ public class Grabber implements Grab {
                 .usingJobData(data)
                 .build();
         SimpleScheduleBuilder times = simpleSchedule()
-                .withIntervalInSeconds(Integer.parseInt(cfg.getProperty("time")))
-                .withRepeatCount(10);
+                .withIntervalInMinutes(Integer.parseInt(cfg.getProperty("time")))
+                .repeatForever();
         Trigger trigger = newTrigger()
                 .startNow()
                 .withSchedule(times)

@@ -31,7 +31,7 @@ public class PsqlStore implements Store, AutoCloseable {
 
     @Override
     public void save(Post post) {
-        var request = "INSERT INTO post(name, text, on conflict (link) do nothing, created) VALUES(?, ?, ?, ?)";
+        var request = "INSERT INTO post(name, text, link, created) VALUES(?, ?, ?, ?) on conflict (link) do nothing;";
         try (PreparedStatement statement = connection.prepareStatement(request)) {
             statement.setString(1, post.getTitle());
             statement.setString(2, post.getDescription());

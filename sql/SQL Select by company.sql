@@ -31,9 +31,8 @@ ORDER BY person.name;
 SELECT company.name "Название компании", COUNT(person.name) "Количество персонала"
 FROM person JOIN company ON person.company_id = company.id
 GROUP BY company.name
-HAVING COUNT(person.name) = (SELECT MAX(count)
-                              FROM (SELECT COUNT(person.name) AS Count
-                                        FROM person JOIN company 
-                                        ON person.company_id = company.id
-                                        GROUP BY company.name) MaxCount);
-                               
+HAVING COUNT(person.name) = (SELECT COUNT(person.name)
+                            FROM person
+                            GROUP BY person.company_id
+                            ORDER BY COUNT(person.name) DESC
+                            LIMIT 1);

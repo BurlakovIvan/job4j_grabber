@@ -23,6 +23,7 @@ public class Emulator {
                 System.out.println("Содержимое файла:");
                 System.out.println(dirFileCache.get(fileName));
             } else {
+                System.out.println("Остановка работы");
                 break;
             }
         }

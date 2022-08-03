@@ -8,11 +8,14 @@ import java.util.StringJoiner;
 
 public class Emulator {
 
-    private static  final String MENU = new StringJoiner(System.lineSeparator())
-            .add("Введи 1, чтобы загрузить содержимое файла в кэш")
-            .add("Введи 2, чтобы получить содержимое файла")
-            .add("Введи любой символ, чтобы выйти")
-            .toString();
+    private static  final String MENU = """
+                                        Введи 1, чтобы загрузить содержимое файла в кэш
+                                        Введи 2, чтобы получить содержимое файла
+                                        Введи любой число, чтобы выйти
+                                        """;
+
+    public static final int ADD = 1;
+    public static final int GET = 2;
 
     private static boolean validation(String path, String file) {
         boolean rsl = true;
@@ -62,13 +65,14 @@ public class Emulator {
         String dir = scanner.nextLine();
         DirFileCache dirFileCache = new DirFileCache(dir);
         validationDir(dir);
-        String index;
+        int index;
         while (true) {
             System.out.println(MENU);
-            index = scanner.nextLine();
-            if ("1".equals(index)) {
+            index = scanner.nextInt();
+            scanner.nextLine();
+            if (index == ADD) {
                 cacheFile(dir, scanner, dirFileCache);
-            } else if ("2".equals(index)) {
+            } else if (index == GET) {
                 String text = cacheFile(dir, scanner, dirFileCache);
                 if (text != null) {
                     printText(text);

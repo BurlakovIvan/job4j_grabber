@@ -9,9 +9,9 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@Disabled
 class GeneratorTest {
 
-    @Disabled
     @Test()
     public void whenCorrectString() {
         String template = "template ${template}";
@@ -21,7 +21,6 @@ class GeneratorTest {
         assertThat(temp.produce(template, args)).isEqualTo("template test");
     }
 
-    @Disabled
     @Test()
     public void whenNoKeysInMap() {
         String template = "template ${template} and test ${key}";
@@ -31,7 +30,6 @@ class GeneratorTest {
         assertThrows(IllegalArgumentException.class, () -> temp.produce(template, args));
     }
 
-    @Disabled
     @Test()
     public void whenNotCorrectArgs() {
         String template = "template ${template}";
@@ -42,7 +40,6 @@ class GeneratorTest {
         assertThrows(IllegalArgumentException.class, () -> temp.produce(template, args));
     }
 
-    @Disabled
     @Test()
     public void whenIsEmptyMap() {
         String template = "template ${template}";
@@ -51,12 +48,11 @@ class GeneratorTest {
         assertThrows(IllegalArgumentException.class, () -> temp.produce(template, args));
     }
 
-    @Disabled
     @Test()
     public void whenNotKeysInTemplate() {
         String template = "template";
         Template temp = new Template();
         Map<String, String> args = new HashMap<>();
-        assertThrows(IllegalArgumentException.class, () -> temp.produce(template, args));
+        assertThat(temp.produce(template, args)).isEqualTo("template");
     }
 }

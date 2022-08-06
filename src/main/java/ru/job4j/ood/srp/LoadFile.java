@@ -1,15 +1,18 @@
 package ru.job4j.ood.srp;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 /*
-Данный класс помимо считывания данных из файла, также проверяет на валидность,
-что является нарушением принципов SRP, это надо сделать по крайней мере хотя бы как отдельный метод,
-или в другом классе
+Данный класс помимо считывания данных из файла, фозвращает длину файла
  */
 public class LoadFile {
+
+    public long lengthFile(File file) {
+        return file.length();
+    }
 
     public String load(Path path) {
         if (!Files.exists(path)) {

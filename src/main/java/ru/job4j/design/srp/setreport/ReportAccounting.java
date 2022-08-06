@@ -14,7 +14,6 @@ public class ReportAccounting implements TypeReport {
         StringBuilder text = new StringBuilder();
         text.append("Name; Hired; Fired; Salary;")
                 .append(System.lineSeparator());
-        workers.sort(Comparator.comparingDouble(Employee::getSalary));
         for (Employee employee : workers) {
             text.append(employee.getName()).append(";")
                     .append(dateFormat.format(employee.getHired().getTime())).append(";")

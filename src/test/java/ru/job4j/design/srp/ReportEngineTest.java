@@ -64,11 +64,12 @@ public class ReportEngineTest {
 
     public StringBuilder stringReportProgrammer(Employee worker) {
         return new StringBuilder()
-                .append("'").append(worker.getName()).append(";")
-                .append(DATE_FORMAT.format(worker.getHired().getTime())).append(";")
-                .append(DATE_FORMAT.format(worker.getFired().getTime())).append(";")
-                .append(worker.getSalary()).append(";").append("'")
-                .append(System.lineSeparator());
+                .append("<tr>").append(System.lineSeparator())
+                .append("<td>").append(worker.getName()).append("</td>")
+                .append("<td>").append(DATE_FORMAT.format(worker.getHired().getTime())).append("</td>")
+                .append("<td>").append(DATE_FORMAT.format(worker.getFired().getTime())).append("</td>")
+                .append("<td>").append(worker.getSalary()).append("</td>")
+                .append("</tr>").append(System.lineSeparator());
     }
 
     public StringBuilder stringReportHR(Employee worker) {
@@ -78,7 +79,7 @@ public class ReportEngineTest {
                 .append(System.lineSeparator());
     }
 
-    public StringBuilder expectString(String title, Function<Employee,
+    public StringBuilder expectString(String title, String conclusion, Function<Employee,
             StringBuilder> typeReport, List<Employee> workers) {
         StringBuilder expect = new StringBuilder()
                 .append(title)
@@ -86,39 +87,59 @@ public class ReportEngineTest {
         for (Employee worker : workers) {
             expect.append(typeReport.apply(worker));
         }
+        if (conclusion.length() > 0) {
+            expect.append(conclusion);
+        }
         return expect;
     }
 
     @Test
     public void whenOldGenerated() {
         assertThat(engine.generate(em -> true, new ReportOld()))
-                .isEqualTo(expectString("Name; Hired; Fired; Salary;",
+                .isEqualTo(expectString("Name; Hired; Fired; Salary;", "",
                         this::stringReport, WORKERS)
                         .toString());
     }
 
     @Test
     public void whenHRGenerated() {
+        var workers = new ArrayList<>(WORKERS);
+        workers.sort(Comparator.comparingDouble(Employee::getSalary).reversed());
         assertThat(engine.generate(em -> true, new ReportHR()))
-                .isEqualTo(expectString("Name; Salary;",
-                        this::stringReportHR, WORKERS)
+                .isEqualTo(expectString("Name; Salary;", "",
+                        this::stringReportHR, workers)
                         .toString());
     }
 
     @Test
     public void whenAccountingGenerated() {
-        var workers = new ArrayList<>(WORKERS);
-        workers.sort(Comparator.comparingDouble(Employee::getSalary));
         assertThat(engine.generate(em -> true, new ReportAccounting()))
-                .isEqualTo(expectString("Name; Hired; Fired; Salary;",
-                        this::stringReportAccount, workers)
+                .isEqualTo(expectString("Name; Hired; Fired; Salary;", "",
+                        this::stringReportAccount, WORKERS)
                         .toString());
     }
 
     @Test
     public void whenProgrammerGenerated() {
+        StringBuilder title = new StringBuilder();
+        title.append("<!DOCTYPE html>").append(System.lineSeparator())
+                .append("<html>").append(System.lineSeparator())
+                .append("<head>").append(System.lineSeparator())
+                .append("<meta charset=\"utf-8\" />").append(System.lineSeparator())
+                .append("<title>Report</title>").append(System.lineSeparator())
+                .append("</head>").append(System.lineSeparator())
+                .append("<body>").append(System.lineSeparator())
+                .append("<table>").append(System.lineSeparator())
+                .append("<tr>").append(System.lineSeparator())
+                .append("<th>Name;</th> <th>Hired;</th> <th>Fired;</th> <th>Salary;</th>")
+                .append(System.lineSeparator())
+                .append("</tr>");
+        StringBuilder conclusion = new StringBuilder();
+        conclusion.append("</table>").append(System.lineSeparator())
+                .append("</body>").append(System.lineSeparator())
+                .append("</html>").append(System.lineSeparator());
         assertThat(engine.generate(em -> true, new ReportProgrammer()))
-                .isEqualTo(expectString("'Name; Hired; Fired; Salary;'",
+                .isEqualTo(expectString(title.toString(), conclusion.toString(),
                         this::stringReportProgrammer, WORKERS)
                         .toString());
     }

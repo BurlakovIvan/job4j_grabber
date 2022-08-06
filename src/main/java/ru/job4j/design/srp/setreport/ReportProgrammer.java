@@ -11,15 +11,31 @@ public class ReportProgrammer implements TypeReport {
     @Override
     public String textReport(List<Employee> workers, SimpleDateFormat dateFormat) {
         StringBuilder text = new StringBuilder();
-        text.append("'Name; Hired; Fired; Salary;'")
-                .append(System.lineSeparator());
+        text.append("<!DOCTYPE html>").append(System.lineSeparator())
+                .append("<html>").append(System.lineSeparator())
+                .append("<head>").append(System.lineSeparator())
+                .append("<meta charset=\"utf-8\" />").append(System.lineSeparator())
+                .append("<title>Report</title>").append(System.lineSeparator())
+                .append("</head>").append(System.lineSeparator())
+                .append("<body>").append(System.lineSeparator())
+                .append("<table>").append(System.lineSeparator())
+                .append("<tr>").append(System.lineSeparator())
+                .append("<th>Name;</th> <th>Hired;</th> <th>Fired;</th> <th>Salary;</th>")
+                .append(System.lineSeparator())
+                .append("</tr>").append(System.lineSeparator());
         for (Employee employee : workers) {
-            text.append("'").append(employee.getName()).append(";")
-                    .append(dateFormat.format(employee.getHired().getTime())).append(";")
-                    .append(dateFormat.format(employee.getFired().getTime())).append(";")
-                    .append(employee.getSalary()).append(";").append("'")
-                    .append(System.lineSeparator());
+            text.append("<tr>").append(System.lineSeparator())
+                    .append("<td>").append(employee.getName()).append("</td>")
+                    .append("<td>").append(dateFormat.format(employee.getHired().getTime()))
+                    .append("</td>")
+                    .append("<td>").append(dateFormat.format(employee.getFired().getTime()))
+                    .append("</td>")
+                    .append("<td>").append(employee.getSalary()).append("</td>")
+                    .append("</tr>").append(System.lineSeparator());
         }
+        text.append("</table>").append(System.lineSeparator())
+                .append("</body>").append(System.lineSeparator())
+                .append("</html>").append(System.lineSeparator());
         return text.toString();
     }
 }

@@ -4,7 +4,6 @@ import ru.job4j.design.srp.Employee;
 import ru.job4j.design.srp.TypeReport;
 
 import java.text.SimpleDateFormat;
-import java.util.Comparator;
 import java.util.List;
 
 public class ReportAccounting implements TypeReport {

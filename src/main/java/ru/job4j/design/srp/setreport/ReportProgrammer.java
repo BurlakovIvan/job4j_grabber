@@ -1,15 +1,24 @@
 package ru.job4j.design.srp.setreport;
 
 import ru.job4j.design.srp.Employee;
-import ru.job4j.design.srp.TypeReport;
+import ru.job4j.design.srp.Report;
+import ru.job4j.design.srp.Store;
 
 import java.text.SimpleDateFormat;
-import java.util.List;
+import java.util.function.Predicate;
 
-public class ReportProgrammer implements TypeReport {
+public class ReportProgrammer implements Report {
+
+    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd:MM:yyyy HH:mm");
+
+    private Store store;
+
+    public ReportProgrammer(Store store) {
+        this.store = store;
+    }
 
     @Override
-    public String textReport(List<Employee> workers, SimpleDateFormat dateFormat) {
+    public String generate(Predicate<Employee> filter) {
         StringBuilder text = new StringBuilder();
         text.append("<!DOCTYPE html>").append(System.lineSeparator())
                 .append("<html>").append(System.lineSeparator())
@@ -23,12 +32,12 @@ public class ReportProgrammer implements TypeReport {
                 .append("<th>Name;</th> <th>Hired;</th> <th>Fired;</th> <th>Salary;</th>")
                 .append(System.lineSeparator())
                 .append("</tr>").append(System.lineSeparator());
-        for (Employee employee : workers) {
+        for (Employee employee : store.findBy(filter)) {
             text.append("<tr>").append(System.lineSeparator())
                     .append("<td>").append(employee.getName()).append("</td>")
-                    .append("<td>").append(dateFormat.format(employee.getHired().getTime()))
+                    .append("<td>").append(DATE_FORMAT.format(employee.getHired().getTime()))
                     .append("</td>")
-                    .append("<td>").append(dateFormat.format(employee.getFired().getTime()))
+                    .append("<td>").append(DATE_FORMAT.format(employee.getFired().getTime()))
                     .append("</td>")
                     .append("<td>").append(employee.getSalary()).append("</td>")
                     .append("</tr>").append(System.lineSeparator());

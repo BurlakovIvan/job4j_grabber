@@ -1,34 +1,21 @@
 package ru.job4j.design.srp;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import ru.job4j.design.srp.setreport.ReportAccounting;
 import ru.job4j.design.srp.setreport.ReportHR;
-import ru.job4j.design.srp.setreport.ReportOld;
+import ru.job4j.design.srp.setreport.ReportEngine;
 import ru.job4j.design.srp.setreport.ReportProgrammer;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import java.io.IOException;
-import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Comparator;
 import java.util.List;
-import java.util.function.Function;
-
 import static org.assertj.core.api.Assertions.*;
 
 public class ReportEngineTest {
 
     public final static List<Employee> WORKERS = new ArrayList<>(5);
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd:MM:yyyy HH:mm");
-    public static Report engine;
-
     public static Calendar now;
 
     @BeforeAll
@@ -38,7 +25,6 @@ public class ReportEngineTest {
         initWorkers("Dmitriy", now, now, 181.78, store);
         initWorkers("Petr", now, now, 224.46, store);
         initWorkers("Alexandr", now, now, 123.29, store);
-        engine = new ReportEngine(store);
     }
 
     public static void initWorkers(String name, Calendar hired,
@@ -46,25 +32,6 @@ public class ReportEngineTest {
         Employee worker = new Employee(name, hired, fired, salary);
         WORKERS.add(worker);
         store.add(worker);
-    }
-
-    public String storeToJSON() {
-        final Gson gson = new GsonBuilder().create();
-        return gson.toJson(engine.getStore());
-    }
-
-    public String storeToXML() throws JAXBException {
-        JAXBContext context = JAXBContext.newInstance(MemStore.class);
-        Marshaller marshaller = context.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-        String xml = "";
-        try (StringWriter writer = new StringWriter()) {
-            marshaller.marshal(engine.getStore(), writer);
-            xml = writer.getBuffer().toString();
-        } catch (IOException | JAXBException e) {
-            e.printStackTrace();
-        }
-        return xml;
     }
 
     @Test
@@ -84,9 +51,15 @@ public class ReportEngineTest {
                 .append(dateHiredFired).append(";").append(dateHiredFired).append(";")
                 .append(123.29).append(";")
                 .append(System.lineSeparator());
-        assertThat(engine.generate(em -> true, new ReportOld())).isEqualTo(expect.toString());
+        Store store = new MemStore();
+        for (Employee employee : WORKERS) {
+            store.add(employee);
+        }
+        Report engine = new ReportEngine(store);
+        assertThat(engine.generate(em -> true)).isEqualTo(expect.toString());
     }
 
+    /*
     @Test
     public void whenGeneratedJSON() {
         assertThat(engine.storeJSON())
@@ -98,6 +71,7 @@ public class ReportEngineTest {
         assertThat(engine.storeXML())
                 .isEqualTo(storeToXML());
     }
+    */
 
     @Test
     public void whenHRGenerated() {
@@ -109,7 +83,12 @@ public class ReportEngineTest {
                 .append(System.lineSeparator())
                 .append("Alexandr").append(";").append(123.29).append(";")
                 .append(System.lineSeparator());
-        assertThat(engine.generate(em -> true, new ReportHR())).isEqualTo(expect.toString());
+        Store store = new MemStore();
+        for (Employee employee : WORKERS) {
+            store.add(employee);
+        }
+        Report engine = new ReportHR(store);
+        assertThat(engine.generate(em -> true)).isEqualTo(expect.toString());
     }
 
     @Test
@@ -129,7 +108,12 @@ public class ReportEngineTest {
                 .append(dateHiredFired).append(";").append(dateHiredFired).append(";")
                 .append(123).append(";")
                 .append(System.lineSeparator());
-        assertThat(engine.generate(em -> true, new ReportAccounting())).isEqualTo(expect.toString());
+        Store store = new MemStore();
+        for (Employee employee : WORKERS) {
+            store.add(employee);
+        }
+        Report engine = new ReportAccounting(store);
+        assertThat(engine.generate(em -> true)).isEqualTo(expect.toString());
     }
 
     @Test
@@ -169,6 +153,11 @@ public class ReportEngineTest {
                 .append("</table>").append(System.lineSeparator())
                 .append("</body>").append(System.lineSeparator())
                 .append("</html>").append(System.lineSeparator());
-        assertThat(engine.generate(em -> true, new ReportProgrammer())).isEqualTo(expect.toString());
+        Store store = new MemStore();
+        for (Employee employee : WORKERS) {
+            store.add(employee);
+        }
+        Report engine = new ReportProgrammer(store);
+        assertThat(engine.generate(em -> true)).isEqualTo(expect.toString());
     }
 }

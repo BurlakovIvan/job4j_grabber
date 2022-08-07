@@ -1,9 +1,8 @@
 package ru.job4j.ood.lsp;
 
 /*
-1. Класс Ostrich нарушает правило
-Постусловия (Postconditions) не могут быть ослаблены в подклассе
-в методе move
+1. Класс Ostrich нарушает правило в методе move:
+Постусловия (Postconditions) не могут быть ослаблены в подклассев
  */
 public class Ostrich extends Animal {
 

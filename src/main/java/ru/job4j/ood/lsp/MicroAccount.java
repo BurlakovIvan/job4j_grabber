@@ -1,9 +1,8 @@
 package ru.job4j.ood.lsp;
 
 /*
-1. Класс Ostrich нарушает правило
+1. Класс MicroAccount нарушает правило в методе transfer:
 Предусловия (Preconditions) не могут быть усилены в подклассе
-в методе transfer
  */
 public class MicroAccount extends Account {
 
@@ -18,9 +17,6 @@ public class MicroAccount extends Account {
         }
         if (money >= 10000) {
             throw new IllegalArgumentException("Слишком много денег!");
-        }
-        if (!permission) {
-            throw new IllegalArgumentException("Не доступно!");
         }
     }
 }

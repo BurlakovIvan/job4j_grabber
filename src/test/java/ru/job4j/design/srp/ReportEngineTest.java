@@ -63,9 +63,12 @@ public class ReportEngineTest {
     @Test
     public void whenGeneratedJSON() {
         Store store = new MemStore();
-        for (Employee employee : WORKERS) {
-            store.add(employee);
-        }
+        Employee worker = new Employee("Dmitriy", now, now, 181.78);
+        store.add(worker);
+        worker = new Employee("Petr", now, now, 224.46);
+        store.add(worker);
+        worker = new Employee("Alexandr", now, now, 123.29);
+        store.add(worker);
         StringBuilder expect = new StringBuilder();
         expect.append("[{\"name\":\"Dmitriy\",\"hired\":{\"year\":").append(now.get(Calendar.YEAR))
                 .append(",\"month\":").append(now.get(Calendar.MONTH)).append(",\"dayOfMonth\":")
@@ -108,9 +111,12 @@ public class ReportEngineTest {
     @Test
     public void whenGeneratedXML() {
         Store store = new MemStore();
-        for (Employee employee : WORKERS) {
-            store.add(employee);
-        }
+        Employee worker = new Employee("Dmitriy", now, now, 181.78);
+        store.add(worker);
+        worker = new Employee("Petr", now, now, 224.46);
+        store.add(worker);
+        worker = new Employee("Alexandr", now, now, 123.29);
+        store.add(worker);
         Report engine = new ReportToXML(store);
         StringJoiner expect = new StringJoiner("\n");
         DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");

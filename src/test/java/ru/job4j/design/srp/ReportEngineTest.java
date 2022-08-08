@@ -1,42 +1,29 @@
 package ru.job4j.design.srp;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import ru.job4j.design.srp.setreport.*;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 import java.util.StringJoiner;
 
 import static org.assertj.core.api.Assertions.*;
 
 public class ReportEngineTest {
 
-    public final static List<Employee> WORKERS = new ArrayList<>(5);
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd:MM:yyyy HH:mm");
-    public static Calendar now;
-
-    @BeforeAll
-    public static void initialization() {
-        Store store = new MemStore();
-        now = Calendar.getInstance();
-        initWorkers("Dmitriy", now, now, 181.78, store);
-        initWorkers("Petr", now, now, 224.46, store);
-        initWorkers("Alexandr", now, now, 123.29, store);
-    }
-
-    public static void initWorkers(String name, Calendar hired,
-                                       Calendar fired, double salary, Store store) {
-        Employee worker = new Employee(name, hired, fired, salary);
-        WORKERS.add(worker);
-        store.add(worker);
-    }
 
     @Test
     public void whenOldGenerated() {
+        Store store = new MemStore();
+        Calendar now = Calendar.getInstance();
+        Employee worker = new Employee("Dmitriy", now, now, 181.78);
+        store.add(worker);
+        worker = new Employee("Petr", now, now, 224.46);
+        store.add(worker);
+        worker = new Employee("Alexandr", now, now, 123.29);
+        store.add(worker);
         var dateHiredFired = DATE_FORMAT.format(now.getTime());
         StringBuilder expect = new StringBuilder()
                 .append("Name; Hired; Fired; Salary;").append(System.lineSeparator())
@@ -52,10 +39,6 @@ public class ReportEngineTest {
                 .append(dateHiredFired).append(";").append(dateHiredFired).append(";")
                 .append(123.29).append(";")
                 .append(System.lineSeparator());
-        Store store = new MemStore();
-        for (Employee employee : WORKERS) {
-            store.add(employee);
-        }
         Report engine = new ReportEngine(store);
         assertThat(engine.generate(em -> true)).isEqualTo(expect.toString());
     }
@@ -63,6 +46,7 @@ public class ReportEngineTest {
     @Test
     public void whenGeneratedJSON() {
         Store store = new MemStore();
+        Calendar now = Calendar.getInstance();
         Employee worker = new Employee("Dmitriy", now, now, 181.78);
         store.add(worker);
         worker = new Employee("Petr", now, now, 224.46);
@@ -111,6 +95,7 @@ public class ReportEngineTest {
     @Test
     public void whenGeneratedXML() {
         Store store = new MemStore();
+        Calendar now = Calendar.getInstance();
         Employee worker = new Employee("Dmitriy", now, now, 181.78);
         store.add(worker);
         worker = new Employee("Petr", now, now, 224.46);
@@ -147,6 +132,14 @@ public class ReportEngineTest {
 
     @Test
     public void whenHRGenerated() {
+        Store store = new MemStore();
+        Calendar now = Calendar.getInstance();
+        Employee worker = new Employee("Dmitriy", now, now, 181.78);
+        store.add(worker);
+        worker = new Employee("Petr", now, now, 224.46);
+        store.add(worker);
+        worker = new Employee("Alexandr", now, now, 123.29);
+        store.add(worker);
         StringBuilder expect = new StringBuilder()
                 .append("Name; Salary;").append(System.lineSeparator())
                 .append("Petr").append(";").append(224.46).append(";")
@@ -155,16 +148,20 @@ public class ReportEngineTest {
                 .append(System.lineSeparator())
                 .append("Alexandr").append(";").append(123.29).append(";")
                 .append(System.lineSeparator());
-        Store store = new MemStore();
-        for (Employee employee : WORKERS) {
-            store.add(employee);
-        }
         Report engine = new ReportHR(store);
         assertThat(engine.generate(em -> true)).isEqualTo(expect.toString());
     }
 
     @Test
     public void whenAccountingGenerated() {
+        Store store = new MemStore();
+        Calendar now = Calendar.getInstance();
+        Employee worker = new Employee("Dmitriy", now, now, 181.78);
+        store.add(worker);
+        worker = new Employee("Petr", now, now, 224.46);
+        store.add(worker);
+        worker = new Employee("Alexandr", now, now, 123.29);
+        store.add(worker);
         var dateHiredFired = DATE_FORMAT.format(now.getTime());
         StringBuilder expect = new StringBuilder()
                 .append("Name; Hired; Fired; Salary;").append(System.lineSeparator())
@@ -180,16 +177,20 @@ public class ReportEngineTest {
                 .append(dateHiredFired).append(";").append(dateHiredFired).append(";")
                 .append(123).append(";")
                 .append(System.lineSeparator());
-        Store store = new MemStore();
-        for (Employee employee : WORKERS) {
-            store.add(employee);
-        }
         Report engine = new ReportAccounting(store);
         assertThat(engine.generate(em -> true)).isEqualTo(expect.toString());
     }
 
     @Test
     public void whenProgrammerGenerated() {
+        Store store = new MemStore();
+        Calendar now = Calendar.getInstance();
+        Employee worker = new Employee("Dmitriy", now, now, 181.78);
+        store.add(worker);
+        worker = new Employee("Petr", now, now, 224.46);
+        store.add(worker);
+        worker = new Employee("Alexandr", now, now, 123.29);
+        store.add(worker);
         var dateHiredFired = DATE_FORMAT.format(now.getTime());
         StringBuilder expect = new StringBuilder();
         expect.append("<!DOCTYPE html>").append(System.lineSeparator())
@@ -225,10 +226,6 @@ public class ReportEngineTest {
                 .append("</table>").append(System.lineSeparator())
                 .append("</body>").append(System.lineSeparator())
                 .append("</html>").append(System.lineSeparator());
-        Store store = new MemStore();
-        for (Employee employee : WORKERS) {
-            store.add(employee);
-        }
         Report engine = new ReportProgrammer(store);
         assertThat(engine.generate(em -> true)).isEqualTo(expect.toString());
     }
